@@ -5,6 +5,7 @@ const sheetSchema = new Schema({
   cells: { type: Schema.Types.Mixed, required: true },
   columnWidths: { type: Schema.Types.Mixed, default: {} },
   rowHeights: { type: Schema.Types.Mixed, default: {} },
+  conditionalFormatting: { type: Schema.Types.Mixed, default: {} },
   updatedAt: { type: Date, default: Date.now },
 });
 

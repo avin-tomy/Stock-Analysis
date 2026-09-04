@@ -1,7 +1,8 @@
 import type { CellsMap } from '../../../types/spreadsheet';
-import { parseCellAddress } from '../addressing';
+import { formatCellAddress, parseCellAddress } from '../addressing';
 import { parseFormula } from './parser';
 import { evaluateAst } from './evaluator';
+import { tokenize } from './tokenizer';
 import { FormulaEvalError, FORMULA_ERRORS } from './errors';
 
 export { parseFormula } from './parser';
@@ -9,6 +10,34 @@ export { FORMULA_ERRORS } from './errors';
 
 export function isFormula(raw: string): boolean {
   return raw.trim().startsWith('=');
+}
+
+/**
+ * Re-addresses every cell reference in a formula by (rowDelta, colDelta) —
+ * the same "relative reference" adjustment Excel does when you drag a
+ * formula's fill handle to another cell. Every reference shifts equally;
+ * there's no $A$1-style absolute reference syntax to hold anything fixed.
+ * Non-cellref tokens (numbers, operators, function names, punctuation) are
+ * reprinted as-is, so the formula is rebuilt token-by-token rather than
+ * re-parsed into an AST.
+ */
+export function shiftFormula(raw: string, rowDelta: number, colDelta: number): string {
+  if (!isFormula(raw)) return raw;
+
+  const tokens = tokenize(raw.slice(1));
+  const parts: string[] = [];
+  for (const token of tokens) {
+    if (token.type === 'EOF') break;
+    if (token.type === 'CELLREF') {
+      const parsed = parseCellAddress(token.value);
+      if (parsed) {
+        parts.push(formatCellAddress(parsed.col + colDelta, parsed.row + rowDelta));
+        continue;
+      }
+    }
+    parts.push(token.value);
+  }
+  return '=' + parts.join('');
 }
 
 /**

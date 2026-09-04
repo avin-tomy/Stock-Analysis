@@ -1,9 +1,10 @@
-import type { CellsMap } from '../types/spreadsheet';
+import type { CellsMap, ConditionalFormatting } from '../types/spreadsheet';
 
 export interface SavedSheet {
   cells: CellsMap;
   columnWidths: Record<number, number>;
   rowHeights: Record<number, number>;
+  conditionalFormatting?: ConditionalFormatting;
   updatedAt: string;
 }
 
@@ -11,6 +12,7 @@ export interface SheetPayload {
   cells: CellsMap;
   columnWidths: Record<number, number>;
   rowHeights: Record<number, number>;
+  conditionalFormatting: ConditionalFormatting;
 }
 
 export async function loadSheet(): Promise<SavedSheet | null> {

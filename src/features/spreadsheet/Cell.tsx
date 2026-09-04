@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import type { CellData } from '../../types/spreadsheet';
 import styles from './Cell.module.css';
 
@@ -11,16 +11,25 @@ interface CellProps {
   isEditing: boolean;
   isHeaderRow: boolean;
   isNumericColumn: boolean;
-  isSignedColumn: boolean;
   /** Row height in px, applied directly since percentage heights don't resolve reliably inside table cells. */
   rowHeight: number;
   /** Seed text for the editor when editing was started by typing over the cell, instead of the cell's existing value. */
   editingSeed: string | null;
-  onSelect: (address: string) => void;
+  /** True while this cell is inside the range being previewed during a fill-handle drag. */
+  isFillPreview: boolean;
+  /** True while this cell is part of a multi-cell selection range (not the anchor itself, which uses isSelected). */
+  isInRange: boolean;
+  /** True for whichever cell should show the fill handle — the anchor for a single cell, or the range's bottom-right corner for a multi-cell selection. */
+  isFillHandleAnchor: boolean;
+  /** Text color from a matching conditional-formatting rule for this cell's column, or null if none matched (or the cell holds an error, which always wins). */
+  matchedColor: string | null;
+  onCellMouseDown: (e: MouseEvent, address: string) => void;
   onStartEdit: (address: string, seed?: string) => void;
   onCommit: (address: string, raw: string) => void;
   onCancelEdit: () => void;
-  onNavigate: (direction: NavigateDirection) => void;
+  onNavigate: (direction: NavigateDirection, extend?: boolean) => void;
+  onDeleteKey: (address: string) => void;
+  onFillHandleMouseDown: (e: MouseEvent) => void;
 }
 
 export function Cell({
@@ -30,14 +39,19 @@ export function Cell({
   isEditing,
   isHeaderRow,
   isNumericColumn,
-  isSignedColumn,
   rowHeight,
   editingSeed,
-  onSelect,
+  isFillPreview,
+  isInRange,
+  isFillHandleAnchor,
+  matchedColor,
+  onCellMouseDown,
   onStartEdit,
   onCommit,
   onCancelEdit,
   onNavigate,
+  onDeleteKey,
+  onFillHandleMouseDown,
 }: CellProps) {
   const cellRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -97,19 +111,19 @@ export function Cell({
     switch (e.key) {
       case 'ArrowUp':
         e.preventDefault();
-        onNavigate('up');
+        onNavigate('up', e.shiftKey);
         return;
       case 'ArrowDown':
         e.preventDefault();
-        onNavigate('down');
+        onNavigate('down', e.shiftKey);
         return;
       case 'ArrowLeft':
         e.preventDefault();
-        onNavigate('left');
+        onNavigate('left', e.shiftKey);
         return;
       case 'ArrowRight':
         e.preventDefault();
-        onNavigate('right');
+        onNavigate('right', e.shiftKey);
         return;
       case 'Tab':
         e.preventDefault();
@@ -122,7 +136,7 @@ export function Cell({
       case 'Backspace':
       case 'Delete':
         e.preventDefault();
-        onCommit(address, '');
+        onDeleteKey(address);
         return;
     }
 
@@ -150,31 +164,35 @@ export function Cell({
     );
   }
 
-  const isNegative = isSignedColumn && typeof cellData.value === 'number' && cellData.value < 0;
-  const isPositive = isSignedColumn && typeof cellData.value === 'number' && cellData.value > 0;
-
   const classNames = [
     styles.cell,
     isSelected ? styles.selected : '',
+    !isSelected && isInRange ? styles.inRange : '',
     isHeaderRow ? styles.headerRow : '',
     isNumericColumn ? styles.numeric : '',
-    cellData.error ? styles.errorValue : isNegative ? styles.negative : isPositive ? styles.positive : '',
+    isFillPreview ? styles.fillPreview : '',
+    cellData.error ? styles.errorValue : '',
   ]
     .filter(Boolean)
     .join(' ');
+
+  // A formula error's red text always takes priority over a rule color.
+  const cellStyle = matchedColor && !cellData.error ? { height: rowHeight, color: matchedColor } : { height: rowHeight };
 
   return (
     <div
       ref={cellRef}
       className={classNames}
-      style={{ height: rowHeight }}
+      style={cellStyle}
       tabIndex={isSelected ? 0 : -1}
-      onClick={() => onSelect(address)}
+      data-address={address}
+      onMouseDown={(e) => onCellMouseDown(e, address)}
       onDoubleClick={() => onStartEdit(address)}
       onKeyDown={handleViewKeyDown}
       title={cellData.error ? `${cellData.error} in ${address}` : undefined}
     >
       {cellData.error ?? formatDisplayValue(cellData.value, isNumericColumn)}
+      {isFillHandleAnchor && <div className={styles.fillHandle} onMouseDown={onFillHandleMouseDown} />}
     </div>
   );
 }

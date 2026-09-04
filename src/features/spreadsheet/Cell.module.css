@@ -1,4 +1,5 @@
 .cell {
+  position: relative;
   box-sizing: border-box;
   height: 100%;
   width: 100%;
@@ -23,6 +24,12 @@
   background: var(--color-cell-selected);
 }
 
+/* Other cells inside a multi-cell selection (the anchor itself uses .selected above). */
+.inRange {
+  background: rgba(79, 141, 253, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(79, 141, 253, 0.35);
+}
+
 .headerRow {
   font-weight: 600;
   background: var(--color-bg);
@@ -35,17 +42,31 @@
   font-family: var(--font-mono);
 }
 
-.negative {
-  color: var(--color-negative);
-}
-
-.positive {
-  color: var(--color-positive);
-}
-
 .errorValue {
   color: var(--color-negative);
   font-weight: 600;
+}
+
+.fillHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  cursor: crosshair;
+  z-index: 2;
+}
+
+.fillHandle:hover {
+  width: 8px;
+  height: 8px;
+}
+
+.fillPreview {
+  outline: 1px dashed var(--color-accent);
+  outline-offset: -1px;
+  background: var(--color-cell-selected);
 }
 
 .input {

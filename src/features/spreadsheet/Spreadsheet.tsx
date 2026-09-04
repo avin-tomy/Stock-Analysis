@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { useSheet } from './useSheet';
 import { Toolbar } from './Toolbar';
 import { FormulaBar } from './FormulaBar';
 import { Grid } from './Grid';
+import { ConditionalFormattingDialog } from './ConditionalFormattingDialog';
+import { columnIndexToLetter, parseCellAddress } from './addressing';
 import styles from './Spreadsheet.module.css';
 
 export function Spreadsheet() {
   const {
     cells,
     selected,
+    rangeEnd,
     editing,
     editingSeed,
     rowStatuses,
@@ -15,24 +19,39 @@ export function Spreadsheet() {
     columnWidths,
     rowHeights,
     save,
+    conditionalFormatting,
     setCellRaw,
     selectCell,
+    selectRange,
+    clearRange,
     startEdit,
     endEdit,
     refreshPrices,
     setColumnWidth,
     setRowHeight,
     saveSheet,
+    fillDown,
+    setColumnRules,
   } = useSheet();
+
+  const [isFormatDialogOpen, setIsFormatDialogOpen] = useState(false);
 
   const handleCommit = (address: string, raw: string) => {
     setCellRaw(address, raw);
     endEdit();
   };
 
+  const selectedCol = selected ? parseCellAddress(selected)?.col ?? null : null;
+
   return (
     <div className={styles.spreadsheet}>
-      <Toolbar refresh={refresh} save={save} onRefresh={refreshPrices} onSave={saveSheet} />
+      <Toolbar
+        refresh={refresh}
+        save={save}
+        onRefresh={refreshPrices}
+        onSave={saveSheet}
+        onOpenFormat={() => setIsFormatDialogOpen(true)}
+      />
       <FormulaBar
         selected={selected}
         cellData={selected ? cells[selected] : undefined}
@@ -43,19 +62,32 @@ export function Spreadsheet() {
         <Grid
           cells={cells}
           selected={selected}
+          rangeEnd={rangeEnd}
           editing={editing}
           editingSeed={editingSeed}
           rowStatuses={rowStatuses}
           columnWidths={columnWidths}
           rowHeights={rowHeights}
+          conditionalFormatting={conditionalFormatting}
           onSelect={selectCell}
+          onSelectRange={selectRange}
+          onClearRange={clearRange}
           onStartEdit={startEdit}
           onCommit={handleCommit}
           onCancelEdit={endEdit}
           onColumnResize={setColumnWidth}
           onRowResize={setRowHeight}
+          onFillDown={fillDown}
         />
       </div>
+      {isFormatDialogOpen && selectedCol !== null && (
+        <ConditionalFormattingDialog
+          columnLabel={columnIndexToLetter(selectedCol)}
+          rules={conditionalFormatting[selectedCol] ?? []}
+          onSave={(rules) => setColumnRules(selectedCol, rules)}
+          onClose={() => setIsFormatDialogOpen(false)}
+        />
+      )}
     </div>
   );
 }

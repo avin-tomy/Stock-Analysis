@@ -1,13 +1,15 @@
-import type { CellsMap, RowStatus, SheetState } from '../../types/spreadsheet';
+import type { CellsMap, ConditionalFormatting, ConditionalRule, RowStatus, SheetState } from '../../types/spreadsheet';
 import type { PriceQuote } from '../../types/stock';
 import { buildInitialCells } from './initialData';
-import { recalcAll } from './formulaEngine';
-import { formatCellAddress } from './addressing';
+import { recalcAll, shiftFormula } from './formulaEngine';
+import { formatCellAddress, getRangeBounds } from './addressing';
 import { COL } from './constants';
 
 export type SheetAction =
   | { type: 'SET_CELL_RAW'; address: string; raw: string }
   | { type: 'SET_SELECTED'; address: string | null }
+  | { type: 'SET_SELECTION_RANGE'; anchor: string; end: string }
+  | { type: 'CLEAR_RANGE'; anchor: string; end: string }
   | { type: 'START_EDIT'; address: string; seed?: string }
   | { type: 'END_EDIT' }
   | { type: 'APPLY_PRICE_UPDATES'; updates: Record<number, PriceQuote> }
@@ -20,14 +22,18 @@ export type SheetAction =
       cells: CellsMap;
       columnWidths: Record<number, number>;
       rowHeights: Record<number, number>;
+      conditionalFormatting: ConditionalFormatting;
       updatedAt: string;
     }
-  | { type: 'SET_SAVE_STATE'; state: 'idle' | 'saving' | 'error'; lastSavedAt?: string; error?: string };
+  | { type: 'SET_SAVE_STATE'; state: 'idle' | 'saving' | 'error'; lastSavedAt?: string; error?: string }
+  | { type: 'FILL_DOWN'; fromCol: number; toCol: number; sourceRow: number; toRow: number }
+  | { type: 'SET_COLUMN_RULES'; col: number; rules: ConditionalRule[] };
 
 export function buildInitialState(): SheetState {
   return {
     cells: buildInitialCells(),
     selected: formatCellAddress(0, 2),
+    rangeEnd: null,
     editing: null,
     editingSeed: null,
     rowStatuses: {},
@@ -35,6 +41,7 @@ export function buildInitialState(): SheetState {
     columnWidths: {},
     rowHeights: {},
     save: { state: 'idle', lastSavedAt: null },
+    conditionalFormatting: {},
   };
 }
 
@@ -49,12 +56,29 @@ export function sheetReducer(state: SheetState, action: SheetAction): SheetState
     }
 
     case 'SET_SELECTED':
-      return { ...state, selected: action.address };
+      // A plain selection always collapses any multi-cell range.
+      return { ...state, selected: action.address, rangeEnd: null };
+
+    case 'SET_SELECTION_RANGE':
+      return { ...state, selected: action.anchor, rangeEnd: action.end };
+
+    case 'CLEAR_RANGE': {
+      const bounds = getRangeBounds(action.anchor, action.end);
+      if (!bounds) return state;
+      const nextCells = { ...state.cells };
+      for (let row = bounds.minRow; row <= bounds.maxRow; row++) {
+        for (let col = bounds.minCol; col <= bounds.maxCol; col++) {
+          nextCells[formatCellAddress(col, row)] = { raw: '', value: null };
+        }
+      }
+      return { ...state, cells: recalcAll(nextCells) };
+    }
 
     case 'START_EDIT':
       return {
         ...state,
         selected: action.address,
+        rangeEnd: null,
         editing: action.address,
         editingSeed: action.seed ?? null,
       };
@@ -113,7 +137,14 @@ export function sheetReducer(state: SheetState, action: SheetAction): SheetState
         cells: recalcAll(action.cells),
         columnWidths: action.columnWidths,
         rowHeights: action.rowHeights,
+        conditionalFormatting: action.conditionalFormatting,
         save: { state: 'idle', lastSavedAt: action.updatedAt },
+      };
+
+    case 'SET_COLUMN_RULES':
+      return {
+        ...state,
+        conditionalFormatting: { ...state.conditionalFormatting, [action.col]: action.rules },
       };
 
     case 'SET_SAVE_STATE':
@@ -125,6 +156,20 @@ export function sheetReducer(state: SheetState, action: SheetAction): SheetState
           error: action.error,
         },
       };
+
+    case 'FILL_DOWN': {
+      const nextCells = { ...state.cells };
+      for (let col = action.fromCol; col <= action.toCol; col++) {
+        const sourceCell = state.cells[formatCellAddress(col, action.sourceRow)];
+        if (!sourceCell) continue;
+        for (let row = action.sourceRow + 1; row <= action.toRow; row++) {
+          const rowDelta = row - action.sourceRow;
+          const raw = shiftFormula(sourceCell.raw, rowDelta, 0);
+          nextCells[formatCellAddress(col, row)] = { raw, value: null };
+        }
+      }
+      return { ...state, cells: recalcAll(nextCells) };
+    }
 
     default:
       return state;

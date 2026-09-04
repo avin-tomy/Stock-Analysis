@@ -6,9 +6,10 @@ interface ToolbarProps {
   save: SaveInfo;
   onRefresh: () => void;
   onSave: () => void;
+  onOpenFormat: () => void;
 }
 
-export function Toolbar({ refresh, save, onRefresh, onSave }: ToolbarProps) {
+export function Toolbar({ refresh, save, onRefresh, onSave, onOpenFormat }: ToolbarProps) {
   const isRefreshing = refresh.state === 'refreshing';
   const isSaving = save.state === 'saving';
 
@@ -46,6 +47,13 @@ export function Toolbar({ refresh, save, onRefresh, onSave }: ToolbarProps) {
               ? `Saved ${new Date(save.lastSavedAt).toLocaleTimeString()}`
               : 'Not saved yet'}
       </span>
+
+      <button className={styles.formatButton} onClick={onOpenFormat}>
+        <span className={styles.icon} aria-hidden="true">
+          🎨
+        </span>
+        Format
+      </button>
 
       <span className={styles.hint}>Type "=" in a cell to start a formula, e.g. =SUM(H2:H5)</span>
     </div>

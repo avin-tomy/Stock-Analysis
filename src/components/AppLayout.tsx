@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import styles from './AppLayout.module.css';
 
 export function AppLayout({ children }: { children: ReactNode }) {
-  const { userEmail, logout } = useAuth();
+  const { userEmail, userName, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -16,8 +16,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     <div className={styles.layout}>
       <header className={styles.topBar}>
         <div className={styles.brand}>
-          <h1>StockSheet</h1>
-          <span>Indian stock analysis</span>
+          <h1>{userName ?? 'StockSheet'}</h1>
         </div>
         <div className={styles.userArea}>
           {userEmail && <span>{userEmail}</span>}

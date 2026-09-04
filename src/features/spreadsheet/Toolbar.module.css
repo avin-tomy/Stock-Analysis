@@ -9,36 +9,29 @@
 }
 
 .refreshButton,
-.saveButton {
+.saveButton,
+.formatButton {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #fff;
-  border: none;
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border-strong);
   border-radius: 999px;
   padding: 7px 16px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 120ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.refreshButton {
-  background: var(--color-accent);
-}
-
-.refreshButton:hover:not(:disabled) {
-  background: var(--color-accent-hover);
-}
-
-.saveButton {
-  background: var(--color-positive);
-}
-
-.saveButton:hover:not(:disabled) {
-  background: var(--color-positive-hover);
+.refreshButton:hover:not(:disabled),
+.saveButton:hover:not(:disabled),
+.formatButton:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-accent);
 }
 
 .refreshButton:disabled,

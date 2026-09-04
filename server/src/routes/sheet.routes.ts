@@ -16,12 +16,13 @@ sheetRouter.get('/', async (req, res) => {
     cells: sheet.cells,
     columnWidths: sheet.columnWidths,
     rowHeights: sheet.rowHeights,
+    conditionalFormatting: sheet.conditionalFormatting,
     updatedAt: sheet.updatedAt,
   });
 });
 
 sheetRouter.put('/', async (req, res) => {
-  const { cells, columnWidths, rowHeights } = req.body ?? {};
+  const { cells, columnWidths, rowHeights, conditionalFormatting } = req.body ?? {};
 
   if (typeof cells !== 'object' || cells === null || Array.isArray(cells)) {
     res.status(400).json({ error: 'cells must be an object' });
@@ -36,6 +37,7 @@ sheetRouter.put('/', async (req, res) => {
       cells,
       columnWidths: columnWidths ?? {},
       rowHeights: rowHeights ?? {},
+      conditionalFormatting: conditionalFormatting ?? {},
       updatedAt,
     },
     { upsert: true }

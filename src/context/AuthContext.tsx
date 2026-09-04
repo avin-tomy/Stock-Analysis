@@ -10,6 +10,7 @@ interface AuthContextValue {
   isLoggedIn: boolean;
   isAuthLoading: boolean;
   userEmail: string | null;
+  userName: string | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -91,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoggedIn: user !== null,
         isAuthLoading,
         userEmail: user?.email ?? null,
+        userName: user?.name ?? null,
         login,
         signup,
         logout,

@@ -38,6 +38,30 @@ export function parseCellAddress(address: string): { col: number; row: number } 
   };
 }
 
+export interface RangeBounds {
+  minCol: number;
+  maxCol: number;
+  minRow: number;
+  maxRow: number;
+}
+
+/** Normalizes two corner addresses (in either order) into a rectangular bounds. */
+export function getRangeBounds(addressA: string, addressB: string): RangeBounds | null {
+  const a = parseCellAddress(addressA);
+  const b = parseCellAddress(addressB);
+  if (!a || !b) return null;
+  return {
+    minCol: Math.min(a.col, b.col),
+    maxCol: Math.max(a.col, b.col),
+    minRow: Math.min(a.row, b.row),
+    maxRow: Math.max(a.row, b.row),
+  };
+}
+
+export function isWithinBounds(col: number, row: number, bounds: RangeBounds): boolean {
+  return col >= bounds.minCol && col <= bounds.maxCol && row >= bounds.minRow && row <= bounds.maxRow;
+}
+
 /** Expands a range like "A1:A5" or "A1:C1" into a flat list of cell addresses. */
 export function expandRange(startAddress: string, endAddress: string): string[] {
   const start = parseCellAddress(startAddress);

@@ -28,9 +28,24 @@ export interface SaveInfo {
   error?: string;
 }
 
+export type RuleOperator = 'lt' | 'lte' | 'gt' | 'gte' | 'eq' | 'neq';
+
+export interface ConditionalRule {
+  id: string;
+  operator: RuleOperator;
+  value: number;
+  color: string;
+}
+
+/** Conditional text-color rules, keyed by 0-based column index. */
+export type ConditionalFormatting = Record<number, ConditionalRule[]>;
+
 export interface SheetState {
   cells: CellsMap;
+  /** The active/anchor cell — where the formula bar points and where typing starts an edit. Unchanged in meaning whether or not a multi-cell range is also selected. */
   selected: string | null;
+  /** The far corner of a multi-cell selection, opposite `selected`. Null (or equal to `selected`) means a plain single-cell selection — every existing single-cell behavior is keyed off `selected` alone and doesn't look at this. */
+  rangeEnd: string | null;
   editing: string | null;
   /** Initial text to seed the editor with when editing starts by typing directly over a cell, instead of the cell's existing raw value. */
   editingSeed: string | null;
@@ -41,4 +56,6 @@ export interface SheetState {
   /** Custom row heights (px) keyed by 1-based row number; unset rows use the default height. */
   rowHeights: Record<number, number>;
   save: SaveInfo;
+  /** Conditional text-color rules, keyed by 0-based column index. */
+  conditionalFormatting: ConditionalFormatting;
 }
