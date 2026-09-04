@@ -1,0 +1,10 @@
+.spreadsheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.gridArea {
+  flex: 1;
+  min-height: 0;
+}

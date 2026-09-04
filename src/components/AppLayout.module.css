@@ -1,0 +1,65 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* fallback for browsers without dvh support */
+  height: 100dvh; /* tracks the real visible area as mobile browser chrome shows/hides */
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.brand h1 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.brand span {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.logoutButton {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-accent);
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}

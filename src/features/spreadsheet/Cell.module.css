@@ -1,0 +1,61 @@
+.cell {
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  padding: 0 8px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  cursor: cell;
+  outline: none;
+  background: var(--color-bg);
+}
+
+.cell:focus {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.selected {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+  background: var(--color-cell-selected);
+}
+
+.headerRow {
+  font-weight: 600;
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.numeric {
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+.negative {
+  color: var(--color-negative);
+}
+
+.positive {
+  color: var(--color-positive);
+}
+
+.errorValue {
+  color: var(--color-negative);
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: var(--color-cell-editing);
+  color: var(--color-text);
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+  padding: 0;
+}

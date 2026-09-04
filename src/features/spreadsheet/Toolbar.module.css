@@ -1,0 +1,82 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 16px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+
+.refreshButton,
+.saveButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.refreshButton {
+  background: var(--color-accent);
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.saveButton {
+  background: var(--color-positive);
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--color-positive-hover);
+}
+
+.refreshButton:disabled,
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.icon {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.spinning {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.status {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hint {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
