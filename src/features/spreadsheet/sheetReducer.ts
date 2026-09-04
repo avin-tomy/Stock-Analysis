@@ -87,15 +87,13 @@ export function sheetReducer(state: SheetState, action: SheetAction): SheetState
       return { ...state, editing: null, editingSeed: null };
 
     case 'APPLY_PRICE_UPDATES': {
+      // Only Price is live-data-driven — Change/Change % are plain
+      // user-editable fields (like Quantity or Avg Buy Price) and are never
+      // touched by a refresh, so manual entries there aren't clobbered.
       const nextCells = { ...state.cells };
       for (const [rowIndexStr, quote] of Object.entries(action.updates)) {
         const row = Number(rowIndexStr);
         nextCells[formatCellAddress(COL.PRICE, row)] = { raw: String(quote.price), value: null };
-        nextCells[formatCellAddress(COL.CHANGE, row)] = { raw: String(quote.change), value: null };
-        nextCells[formatCellAddress(COL.CHANGE_PERCENT, row)] = {
-          raw: String(quote.changePercent),
-          value: null,
-        };
       }
       return { ...state, cells: recalcAll(nextCells) };
     }
