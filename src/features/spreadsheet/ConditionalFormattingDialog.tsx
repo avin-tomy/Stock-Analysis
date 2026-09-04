@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ConditionalRule, RuleOperator } from '../../types/spreadsheet';
 import { OPERATOR_LABELS } from './conditionalFormatting';
+import { MAX_DECIMALS, MIN_DECIMALS } from './constants';
 import styles from './ConditionalFormattingDialog.module.css';
 
 const OPERATORS: RuleOperator[] = ['lt', 'lte', 'gt', 'gte', 'eq', 'neq'];
@@ -9,7 +10,8 @@ const DEFAULT_COLOR = '#3ecf8e';
 interface ConditionalFormattingDialogProps {
   columnLabel: string;
   rules: ConditionalRule[];
-  onSave: (rules: ConditionalRule[]) => void;
+  decimals: number;
+  onSave: (rules: ConditionalRule[], decimals: number) => void;
   onClose: () => void;
 }
 
@@ -22,10 +24,12 @@ function makeId(): string {
 export function ConditionalFormattingDialog({
   columnLabel,
   rules,
+  decimals,
   onSave,
   onClose,
 }: ConditionalFormattingDialogProps) {
   const [draftRules, setDraftRules] = useState<ConditionalRule[]>(rules);
+  const [draftDecimals, setDraftDecimals] = useState(decimals);
 
   const updateRule = (id: string, patch: Partial<ConditionalRule>) => {
     setDraftRules((prev) => prev.map((rule) => (rule.id === id ? { ...rule, ...patch } : rule)));
@@ -40,7 +44,7 @@ export function ConditionalFormattingDialog({
   };
 
   const handleApply = () => {
-    onSave(draftRules);
+    onSave(draftRules, draftDecimals);
     onClose();
   };
 
@@ -52,6 +56,7 @@ export function ConditionalFormattingDialog({
           Color column {columnLabel}'s text when its value matches a rule. The first matching rule wins.
         </p>
 
+        <h3 className={styles.sectionTitle}>Rules</h3>
         {draftRules.length === 0 && <p className={styles.emptyText}>No rules yet for this column.</p>}
 
         {draftRules.map((rule) => (
@@ -89,6 +94,23 @@ export function ConditionalFormattingDialog({
         <button className={styles.addButton} onClick={addRule}>
           + Add rule
         </button>
+
+        <div className={styles.decimalsRow}>
+          <label htmlFor="decimals" className={styles.decimalsLabel}>
+            Decimal places
+          </label>
+          <input
+            id="decimals"
+            type="number"
+            className={styles.valueInput}
+            min={MIN_DECIMALS}
+            max={MAX_DECIMALS}
+            value={draftDecimals}
+            onChange={(e) =>
+              setDraftDecimals(Math.min(MAX_DECIMALS, Math.max(MIN_DECIMALS, Number(e.target.value))))
+            }
+          />
+        </div>
 
         <div className={styles.footer}>
           <button className={styles.cancelButton} onClick={onClose}>

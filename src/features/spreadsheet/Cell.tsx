@@ -23,6 +23,8 @@ interface CellProps {
   isFillHandleAnchor: boolean;
   /** Text color from a matching conditional-formatting rule for this cell's column, or null if none matched (or the cell holds an error, which always wins). */
   matchedColor: string | null;
+  /** Decimal places to display for a numeric column — display-only, doesn't affect the stored value or formulas. */
+  decimals: number;
   onCellMouseDown: (e: MouseEvent, address: string) => void;
   onStartEdit: (address: string, seed?: string) => void;
   onCommit: (address: string, raw: string) => void;
@@ -45,6 +47,7 @@ export function Cell({
   isInRange,
   isFillHandleAnchor,
   matchedColor,
+  decimals,
   onCellMouseDown,
   onStartEdit,
   onCommit,
@@ -191,16 +194,16 @@ export function Cell({
       onKeyDown={handleViewKeyDown}
       title={cellData.error ? `${cellData.error} in ${address}` : undefined}
     >
-      {cellData.error ?? formatDisplayValue(cellData.value, isNumericColumn)}
+      {cellData.error ?? formatDisplayValue(cellData.value, isNumericColumn, decimals)}
       {isFillHandleAnchor && <div className={styles.fillHandle} onMouseDown={onFillHandleMouseDown} />}
     </div>
   );
 }
 
-function formatDisplayValue(value: CellData['value'], isNumericColumn: boolean): string {
+function formatDisplayValue(value: CellData['value'], isNumericColumn: boolean, decimals: number): string {
   if (value === null) return '';
   if (typeof value === 'number') {
-    return isNumericColumn ? value.toFixed(2) : String(value);
+    return isNumericColumn ? value.toFixed(decimals) : String(value);
   }
   return value;
 }

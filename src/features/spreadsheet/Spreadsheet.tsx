@@ -5,6 +5,7 @@ import { FormulaBar } from './FormulaBar';
 import { Grid } from './Grid';
 import { ConditionalFormattingDialog } from './ConditionalFormattingDialog';
 import { columnIndexToLetter, parseCellAddress } from './addressing';
+import { DEFAULT_DECIMALS } from './constants';
 import styles from './Spreadsheet.module.css';
 
 export function Spreadsheet() {
@@ -20,6 +21,7 @@ export function Spreadsheet() {
     rowHeights,
     save,
     conditionalFormatting,
+    columnDecimals,
     setCellRaw,
     selectCell,
     selectRange,
@@ -32,6 +34,7 @@ export function Spreadsheet() {
     saveSheet,
     fillDown,
     setColumnRules,
+    setColumnDecimals,
   } = useSheet();
 
   const [isFormatDialogOpen, setIsFormatDialogOpen] = useState(false);
@@ -69,6 +72,7 @@ export function Spreadsheet() {
           columnWidths={columnWidths}
           rowHeights={rowHeights}
           conditionalFormatting={conditionalFormatting}
+          columnDecimals={columnDecimals}
           onSelect={selectCell}
           onSelectRange={selectRange}
           onClearRange={clearRange}
@@ -84,7 +88,11 @@ export function Spreadsheet() {
         <ConditionalFormattingDialog
           columnLabel={columnIndexToLetter(selectedCol)}
           rules={conditionalFormatting[selectedCol] ?? []}
-          onSave={(rules) => setColumnRules(selectedCol, rules)}
+          decimals={columnDecimals[selectedCol] ?? DEFAULT_DECIMALS}
+          onSave={(rules, decimals) => {
+            setColumnRules(selectedCol, rules);
+            setColumnDecimals(selectedCol, decimals);
+          }}
           onClose={() => setIsFormatDialogOpen(false)}
         />
       )}

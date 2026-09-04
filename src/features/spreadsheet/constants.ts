@@ -11,6 +11,10 @@ export const MIN_ROW_HEIGHT = 20;
 
 export const AUTOSAVE_INTERVAL_MS = 30_000;
 
+export const DEFAULT_DECIMALS = 2;
+export const MIN_DECIMALS = 0;
+export const MAX_DECIMALS = 10;
+
 export const COLUMN_HEADERS = [
   'Symbol',
   'Company Name',

@@ -5,6 +5,7 @@ export interface SavedSheet {
   columnWidths: Record<number, number>;
   rowHeights: Record<number, number>;
   conditionalFormatting?: ConditionalFormatting;
+  columnDecimals?: Record<number, number>;
   updatedAt: string;
 }
 
@@ -13,6 +14,7 @@ export interface SheetPayload {
   columnWidths: Record<number, number>;
   rowHeights: Record<number, number>;
   conditionalFormatting: ConditionalFormatting;
+  columnDecimals: Record<number, number>;
 }
 
 export async function loadSheet(): Promise<SavedSheet | null> {

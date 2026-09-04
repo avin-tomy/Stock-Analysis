@@ -58,4 +58,6 @@ export interface SheetState {
   save: SaveInfo;
   /** Conditional text-color rules, keyed by 0-based column index. */
   conditionalFormatting: ConditionalFormatting;
+  /** Display-only decimal places, keyed by 0-based column index; unset numeric columns default to 2. Doesn't affect the underlying value or formulas. */
+  columnDecimals: Record<number, number>;
 }

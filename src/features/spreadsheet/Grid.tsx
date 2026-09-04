@@ -11,6 +11,7 @@ import { getMatchedColor } from './conditionalFormatting';
 import {
   COLS,
   DEFAULT_COL_WIDTH,
+  DEFAULT_DECIMALS,
   DEFAULT_ROW_HEIGHT,
   HEADER_ROW,
   MIN_COL_WIDTH,
@@ -33,6 +34,7 @@ interface GridProps {
   columnWidths: Record<number, number>;
   rowHeights: Record<number, number>;
   conditionalFormatting: ConditionalFormatting;
+  columnDecimals: Record<number, number>;
   onSelect: (address: string) => void;
   onSelectRange: (anchor: string, end: string) => void;
   onClearRange: (anchor: string, end: string) => void;
@@ -56,6 +58,7 @@ export function Grid({
   columnWidths,
   rowHeights,
   conditionalFormatting,
+  columnDecimals,
   onSelect,
   onSelectRange,
   onClearRange,
@@ -297,6 +300,7 @@ export function Grid({
                     row !== HEADER_ROW && typeof cellData.value === 'number'
                       ? getMatchedColor(cellData.value, conditionalFormatting[col] ?? [])
                       : null;
+                  const decimals = columnDecimals[col] ?? DEFAULT_DECIMALS;
                   return (
                     <td key={address} className={styles.dataCell}>
                       <Cell
@@ -312,6 +316,7 @@ export function Grid({
                         isInRange={isInRange}
                         isFillHandleAnchor={isFillHandleAnchor}
                         matchedColor={matchedColor}
+                        decimals={decimals}
                         onCellMouseDown={handleCellMouseDown}
                         onStartEdit={onStartEdit}
                         onCommit={onCommit}

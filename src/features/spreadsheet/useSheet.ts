@@ -11,9 +11,10 @@ function snapshotOf(
   cells: unknown,
   columnWidths: unknown,
   rowHeights: unknown,
-  conditionalFormatting: unknown
+  conditionalFormatting: unknown,
+  columnDecimals: unknown
 ): string {
-  return JSON.stringify({ cells, columnWidths, rowHeights, conditionalFormatting });
+  return JSON.stringify({ cells, columnWidths, rowHeights, conditionalFormatting, columnDecimals });
 }
 
 export function useSheet() {
@@ -29,7 +30,13 @@ export function useSheet() {
   // when nothing has changed. Starts as the seed data; updated again once
   // a previously-saved sheet is hydrated in, and after every save.
   const lastSavedSnapshotRef = useRef(
-    snapshotOf(state.cells, state.columnWidths, state.rowHeights, state.conditionalFormatting)
+    snapshotOf(
+      state.cells,
+      state.columnWidths,
+      state.rowHeights,
+      state.conditionalFormatting,
+      state.columnDecimals
+    )
   );
 
   // Restore whatever the user last saved, once, on mount. If nothing was
@@ -45,13 +52,15 @@ export function useSheet() {
             columnWidths: saved.columnWidths,
             rowHeights: saved.rowHeights,
             conditionalFormatting: saved.conditionalFormatting ?? {},
+            columnDecimals: saved.columnDecimals ?? {},
             updatedAt: saved.updatedAt,
           });
           lastSavedSnapshotRef.current = snapshotOf(
             saved.cells,
             saved.columnWidths,
             saved.rowHeights,
-            saved.conditionalFormatting ?? {}
+            saved.conditionalFormatting ?? {},
+            saved.columnDecimals ?? {}
           );
         }
       })
@@ -103,15 +112,31 @@ export function useSheet() {
     dispatch({ type: 'SET_COLUMN_RULES', col, rules });
   }, []);
 
+  const setColumnDecimals = useCallback((col: number, decimals: number) => {
+    dispatch({ type: 'SET_COLUMN_DECIMALS', col, decimals });
+  }, []);
+
   // Stable across renders (reads via stateRef instead of closing over
   // `state`) so the autosave interval below never needs to be torn down
   // and recreated — it keeps a fixed 30s cadence for the life of the sheet.
   const performSave = useCallback(async () => {
-    const { cells, columnWidths, rowHeights, conditionalFormatting } = stateRef.current;
+    const { cells, columnWidths, rowHeights, conditionalFormatting, columnDecimals } = stateRef.current;
     dispatch({ type: 'SET_SAVE_STATE', state: 'saving' });
     try {
-      const { updatedAt } = await saveSheetRequest({ cells, columnWidths, rowHeights, conditionalFormatting });
-      lastSavedSnapshotRef.current = snapshotOf(cells, columnWidths, rowHeights, conditionalFormatting);
+      const { updatedAt } = await saveSheetRequest({
+        cells,
+        columnWidths,
+        rowHeights,
+        conditionalFormatting,
+        columnDecimals,
+      });
+      lastSavedSnapshotRef.current = snapshotOf(
+        cells,
+        columnWidths,
+        rowHeights,
+        conditionalFormatting,
+        columnDecimals
+      );
       dispatch({ type: 'SET_SAVE_STATE', state: 'idle', lastSavedAt: updatedAt });
     } catch (err) {
       dispatch({
@@ -130,8 +155,11 @@ export function useSheet() {
   // sheet.
   useEffect(() => {
     const id = setInterval(() => {
-      const { cells, columnWidths, rowHeights, conditionalFormatting } = stateRef.current;
-      if (snapshotOf(cells, columnWidths, rowHeights, conditionalFormatting) !== lastSavedSnapshotRef.current) {
+      const { cells, columnWidths, rowHeights, conditionalFormatting, columnDecimals } = stateRef.current;
+      if (
+        snapshotOf(cells, columnWidths, rowHeights, conditionalFormatting, columnDecimals) !==
+        lastSavedSnapshotRef.current
+      ) {
         performSave();
       }
     }, AUTOSAVE_INTERVAL_MS);
@@ -199,6 +227,7 @@ export function useSheet() {
     rowHeights: state.rowHeights,
     save: state.save,
     conditionalFormatting: state.conditionalFormatting,
+    columnDecimals: state.columnDecimals,
     setCellRaw,
     selectCell,
     selectRange,
@@ -211,5 +240,6 @@ export function useSheet() {
     saveSheet,
     fillDown,
     setColumnRules,
+    setColumnDecimals,
   };
 }

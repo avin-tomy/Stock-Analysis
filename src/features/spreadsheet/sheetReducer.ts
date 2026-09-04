@@ -23,11 +23,13 @@ export type SheetAction =
       columnWidths: Record<number, number>;
       rowHeights: Record<number, number>;
       conditionalFormatting: ConditionalFormatting;
+      columnDecimals: Record<number, number>;
       updatedAt: string;
     }
   | { type: 'SET_SAVE_STATE'; state: 'idle' | 'saving' | 'error'; lastSavedAt?: string; error?: string }
   | { type: 'FILL_DOWN'; fromCol: number; toCol: number; sourceRow: number; toRow: number }
-  | { type: 'SET_COLUMN_RULES'; col: number; rules: ConditionalRule[] };
+  | { type: 'SET_COLUMN_RULES'; col: number; rules: ConditionalRule[] }
+  | { type: 'SET_COLUMN_DECIMALS'; col: number; decimals: number };
 
 export function buildInitialState(): SheetState {
   return {
@@ -42,6 +44,7 @@ export function buildInitialState(): SheetState {
     rowHeights: {},
     save: { state: 'idle', lastSavedAt: null },
     conditionalFormatting: {},
+    columnDecimals: {},
   };
 }
 
@@ -136,6 +139,7 @@ export function sheetReducer(state: SheetState, action: SheetAction): SheetState
         columnWidths: action.columnWidths,
         rowHeights: action.rowHeights,
         conditionalFormatting: action.conditionalFormatting,
+        columnDecimals: action.columnDecimals,
         save: { state: 'idle', lastSavedAt: action.updatedAt },
       };
 
@@ -143,6 +147,12 @@ export function sheetReducer(state: SheetState, action: SheetAction): SheetState
       return {
         ...state,
         conditionalFormatting: { ...state.conditionalFormatting, [action.col]: action.rules },
+      };
+
+    case 'SET_COLUMN_DECIMALS':
+      return {
+        ...state,
+        columnDecimals: { ...state.columnDecimals, [action.col]: action.decimals },
       };
 
     case 'SET_SAVE_STATE':
