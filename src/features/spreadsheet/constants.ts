@@ -1,5 +1,5 @@
 export const COLS = 26; // A..Z
-export const ROWS = 40; // rows 1..40 (row 1 = header)
+export const ROWS = 50; // rows 1..50 (row 1 = header)
 export const HEADER_ROW = 1;
 export const FIRST_DATA_ROW = 2;
 
