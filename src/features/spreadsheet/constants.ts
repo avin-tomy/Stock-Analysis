@@ -43,15 +43,3 @@ export const COL = {
   PL: 9,
   PL_PERCENT: 10,
 } as const;
-
-export const NUMERIC_COLS: Set<number> = new Set([
-  COL.PRICE,
-  COL.CHANGE,
-  COL.CHANGE_PERCENT,
-  COL.QUANTITY,
-  COL.AVG_BUY_PRICE,
-  COL.INVESTMENT_VALUE,
-  COL.CURRENT_VALUE,
-  COL.PL,
-  COL.PL_PERCENT,
-]);

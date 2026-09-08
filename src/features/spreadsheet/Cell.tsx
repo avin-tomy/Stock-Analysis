@@ -203,7 +203,19 @@ export function Cell({
 function formatDisplayValue(value: CellData['value'], isNumericColumn: boolean, decimals: number): string {
   if (value === null) return '';
   if (typeof value === 'number') {
-    return isNumericColumn ? value.toFixed(decimals) : String(value);
+    return isNumericColumn ? roundForDisplay(value, decimals) : String(value);
   }
   return value;
+}
+
+// value.toFixed(decimals) truncates instead of rounding for values that land
+// exactly on a rounding boundary in binary floating point — e.g.
+// (1.005).toFixed(2) is "1.00", not "1.01" — because 1.005 is actually stored
+// as slightly less than 1.005. Shifting the decimal point via string
+// exponent notation (rather than multiplying, which reintroduces the same
+// float error) avoids that and rounds as expected.
+function roundForDisplay(value: number, decimals: number): string {
+  const shifted = Number(`${value}e${decimals}`);
+  const rounded = Math.round(shifted);
+  return Number(`${rounded}e-${decimals}`).toFixed(decimals);
 }

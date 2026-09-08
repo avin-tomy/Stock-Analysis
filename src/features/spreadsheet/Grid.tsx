@@ -16,7 +16,6 @@ import {
   HEADER_ROW,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
-  NUMERIC_COLS,
   ROW_HEADER_WIDTH,
   ROWS,
 } from './constants';
@@ -296,10 +295,10 @@ export function Grid({
                     hasRealRange && selectionBounds !== null && isWithinBounds(col, row, selectionBounds);
                   const isFillHandleAnchor =
                     selectionBounds !== null && col === selectionBounds.maxCol && row === selectionBounds.maxRow;
-                  const matchedColor =
-                    row !== HEADER_ROW && typeof cellData.value === 'number'
-                      ? getMatchedColor(cellData.value, conditionalFormatting[col] ?? [])
-                      : null;
+                  const isNumericCell = row !== HEADER_ROW && typeof cellData.value === 'number';
+                  const matchedColor = isNumericCell
+                    ? getMatchedColor(cellData.value as number, conditionalFormatting[col] ?? [])
+                    : null;
                   const decimals = columnDecimals[col] ?? DEFAULT_DECIMALS;
                   return (
                     <td key={address} className={styles.dataCell}>
@@ -310,7 +309,7 @@ export function Grid({
                         isEditing={editing === address}
                         editingSeed={editing === address ? editingSeed : null}
                         isHeaderRow={row === HEADER_ROW}
-                        isNumericColumn={row !== HEADER_ROW && NUMERIC_COLS.has(col)}
+                        isNumericColumn={isNumericCell}
                         rowHeight={rowHeight}
                         isFillPreview={isFillPreview}
                         isInRange={isInRange}
