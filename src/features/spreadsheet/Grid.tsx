@@ -123,16 +123,29 @@ export function Grid({
       return;
     }
 
+    // Tapping a cell that's already the (sole) selection starts editing it
+    // directly — the standard mobile-spreadsheet pattern (tap to select,
+    // tap again to edit), and needed there since touch has no double-click
+    // or physical keyboard to trigger editing otherwise. Only fires if the
+    // gesture stays a plain tap rather than turning into a drag to extend
+    // the selection into a range.
+    const wasAlreadySelected = selected === address && !hasRealRange;
+    let draggedToAnotherCell = false;
+
     onSelect(address);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const el = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
       const hoveredAddress = el?.closest('[data-address]')?.getAttribute('data-address');
+      if (hoveredAddress && hoveredAddress !== address) draggedToAnotherCell = true;
       if (hoveredAddress) onSelectRange(address, hoveredAddress);
     };
     const onMouseUp = () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      if (wasAlreadySelected && !draggedToAnotherCell) {
+        onStartEdit(address);
+      }
     };
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
