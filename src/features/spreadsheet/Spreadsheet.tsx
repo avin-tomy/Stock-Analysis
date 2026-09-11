@@ -33,7 +33,7 @@ export function Spreadsheet() {
     setRowHeight,
     saveSheet,
     fillDown,
-    setColumnRules,
+    setCellRules,
     setColumnDecimals,
   } = useSheet();
 
@@ -84,13 +84,14 @@ export function Spreadsheet() {
           onFillDown={fillDown}
         />
       </div>
-      {isFormatDialogOpen && selectedCol !== null && (
+      {isFormatDialogOpen && selected !== null && selectedCol !== null && (
         <ConditionalFormattingDialog
+          cellAddress={selected}
           columnLabel={columnIndexToLetter(selectedCol)}
-          rules={conditionalFormatting[selectedCol] ?? []}
+          rules={conditionalFormatting[selected] ?? []}
           decimals={columnDecimals[selectedCol] ?? DEFAULT_DECIMALS}
           onSave={(rules, decimals) => {
-            setColumnRules(selectedCol, rules);
+            setCellRules(selected, rules);
             setColumnDecimals(selectedCol, decimals);
           }}
           onClose={() => setIsFormatDialogOpen(false)}

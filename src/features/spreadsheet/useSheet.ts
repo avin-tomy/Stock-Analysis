@@ -108,8 +108,8 @@ export function useSheet() {
     dispatch({ type: 'FILL_DOWN', fromCol, toCol, sourceRow, toRow });
   }, []);
 
-  const setColumnRules = useCallback((col: number, rules: ConditionalRule[]) => {
-    dispatch({ type: 'SET_COLUMN_RULES', col, rules });
+  const setCellRules = useCallback((address: string, rules: ConditionalRule[]) => {
+    dispatch({ type: 'SET_CELL_RULES', address, rules });
   }, []);
 
   const setColumnDecimals = useCallback((col: number, decimals: number) => {
@@ -239,7 +239,7 @@ export function useSheet() {
     setRowHeight,
     saveSheet,
     fillDown,
-    setColumnRules,
+    setCellRules,
     setColumnDecimals,
   };
 }

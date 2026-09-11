@@ -297,7 +297,7 @@ export function Grid({
                     selectionBounds !== null && col === selectionBounds.maxCol && row === selectionBounds.maxRow;
                   const isNumericCell = row !== HEADER_ROW && typeof cellData.value === 'number';
                   const matchedColor = isNumericCell
-                    ? getMatchedColor(cellData.value as number, conditionalFormatting[col] ?? [])
+                    ? getMatchedColor(cellData.value as number, conditionalFormatting[address] ?? [])
                     : null;
                   const decimals = columnDecimals[col] ?? DEFAULT_DECIMALS;
                   return (

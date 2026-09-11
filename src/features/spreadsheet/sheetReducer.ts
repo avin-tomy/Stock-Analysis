@@ -28,7 +28,7 @@ export type SheetAction =
     }
   | { type: 'SET_SAVE_STATE'; state: 'idle' | 'saving' | 'error'; lastSavedAt?: string; error?: string }
   | { type: 'FILL_DOWN'; fromCol: number; toCol: number; sourceRow: number; toRow: number }
-  | { type: 'SET_COLUMN_RULES'; col: number; rules: ConditionalRule[] }
+  | { type: 'SET_CELL_RULES'; address: string; rules: ConditionalRule[] }
   | { type: 'SET_COLUMN_DECIMALS'; col: number; decimals: number };
 
 export function buildInitialState(): SheetState {
@@ -143,10 +143,10 @@ export function sheetReducer(state: SheetState, action: SheetAction): SheetState
         save: { state: 'idle', lastSavedAt: action.updatedAt },
       };
 
-    case 'SET_COLUMN_RULES':
+    case 'SET_CELL_RULES':
       return {
         ...state,
-        conditionalFormatting: { ...state.conditionalFormatting, [action.col]: action.rules },
+        conditionalFormatting: { ...state.conditionalFormatting, [action.address]: action.rules },
       };
 
     case 'SET_COLUMN_DECIMALS':

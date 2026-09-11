@@ -37,8 +37,8 @@ export interface ConditionalRule {
   color: string;
 }
 
-/** Conditional text-color rules, keyed by 0-based column index. */
-export type ConditionalFormatting = Record<number, ConditionalRule[]>;
+/** Conditional text-color rules, keyed by cell address (e.g. "C5") — set individually per cell. */
+export type ConditionalFormatting = Record<string, ConditionalRule[]>;
 
 export interface SheetState {
   cells: CellsMap;
@@ -56,7 +56,7 @@ export interface SheetState {
   /** Custom row heights (px) keyed by 1-based row number; unset rows use the default height. */
   rowHeights: Record<number, number>;
   save: SaveInfo;
-  /** Conditional text-color rules, keyed by 0-based column index. */
+  /** Conditional text-color rules, keyed by cell address — set individually per cell. */
   conditionalFormatting: ConditionalFormatting;
   /** Display-only decimal places, keyed by 0-based column index; unset numeric columns default to 2. Doesn't affect the underlying value or formulas. */
   columnDecimals: Record<number, number>;
